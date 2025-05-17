@@ -1,0 +1,4 @@
+com\brewerylocator\model\Brewery.class
+com\brewerylocator\controller\BreweryController.class
+com\brewerylocator\service\BreweryService.class
+com\brewerylocator\BreweryLocatorApplication.class

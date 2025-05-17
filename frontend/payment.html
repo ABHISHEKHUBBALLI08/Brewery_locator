@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UPI Payment</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+      height: 100%;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: url('images/brewery.jpg') no-repeat center center/cover;
+      background-size: cover;
+      background-attachment: fixed;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 500px;
+      margin: 100px auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .amount-display {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Enter UPI ID to Pay</h2>
+
+    <div class="amount-display">
+      Amount to Pay: ₹<span id="amount">0</span>
+    </div>
+
+    <input type="text" id="upiid" placeholder="Enter your UPI ID (e.g., user@bank)" />
+
+    <button id="payNow">Proceed to Pay</button>
+  </div>
+
+  <!-- payment.html -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  const amount = new URLSearchParams(window.location.search).get("amount") || "0";
+  document.getElementById("amount").textContent = amount;
+  document.getElementById("payNow").addEventListener("click", async () => {
+    const upi = document.getElementById("upiid").value.trim();
+  
+    if (!upi || !upi.includes("@")) {
+      alert("Please enter a valid UPI ID");
+      return;
+    }
+
+    const response = await fetch('http://localhost:5000/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: parseInt(amount) })
+    });
+
+    const data = await response.json();
+
+    const options = {
+      key: "rzp_test_UQTuNj7nbGHLLg",
+      amount: amount * 100,
+      currency: "INR",
+      order_id: data.orderId,
+      name: "Brewery Purchase",
+      description: "UPI Payment for Brewery",
+      prefill: {
+        email: "user@example.com",
+        contact: "9999999999",
+        method: "upi",
+        upi: {
+          vpa: upi
+        }
+      },
+      handler: function (response) {
+        alert(`✅ Payment successful! Payment ID: ${response.razorpay_payment_id}`);
+      },
+      theme: {
+        color: "#28a745"
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  });
+</script>
+
+</body>
+</html>
