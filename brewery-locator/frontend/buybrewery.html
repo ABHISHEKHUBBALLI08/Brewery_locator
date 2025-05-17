@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Buy Brewery</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+  height: 100%;
+}
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: url('images/brewery.jpg') no-repeat center center/cover;
+      background-size: cover;
+      background-attachment: fixed;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 500px;
+      margin: 100px auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .total {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Buy Your Brewery 🍺</h2>
+
+    <select id="brand">
+      <option value="">Loading brands...</option>
+    </select>
+
+    <input type="number" id="quantity" placeholder="Enter quantity" min="1" />
+
+    <div class="total">
+      Total Amount: ₹<span id="total">0</span>
+    </div>
+
+    <button id="payBtn">Buy Now</button>
+  </div>
+
+  <script>
+    const brandSelect = document.getElementById('brand');
+    const quantityInput = document.getElementById('quantity');
+    const totalSpan = document.getElementById('total');
+    const payBtn = document.getElementById('payBtn');
+
+    let priceMap = {};
+
+    fetch('./breweries.json')
+      .then(res => res.json())
+      .then(data => {
+        brandSelect.innerHTML = '<option value="">-- Select a Brewery --</option>';
+        data.forEach(brewery => {
+          const option = document.createElement('option');
+          option.value = brewery.name;
+          option.textContent = brewery.name;
+          brandSelect.appendChild(option);
+          priceMap[brewery.name] = brewery.price;
+        });
+      })
+      .catch(err => {
+        brandSelect.innerHTML = '<option value="">Failed to load breweries</option>';
+        console.error('Error loading local JSON:', err);
+      });
+
+    function updateTotal() {
+      const brand = brandSelect.value;
+      const quantity = parseInt(quantityInput.value, 10) || 0;
+      const price = priceMap[brand] || 0;
+      const total = price * quantity;
+      totalSpan.textContent = total;
+    }
+
+    brandSelect.addEventListener('change', updateTotal);
+    quantityInput.addEventListener('input', updateTotal);
+
+    payBtn.addEventListener('click', () => {
+  const brand = brandSelect.value;
+  const quantity = parseInt(quantityInput.value, 10) || 0;
+  const total = parseInt(totalSpan.textContent);
+
+  if (!brand || quantity < 1) {
+    alert('Please select a brand and enter quantity.');
+    return;
+  }
+
+  // Navigate to payment page with total as query param
+  window.location.href = `payment.html?amount=${total}`;
+});
+  </script>
+</body>
+</html>

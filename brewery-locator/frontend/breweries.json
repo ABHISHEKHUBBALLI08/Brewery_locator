@@ -1,0 +1,7 @@
+[
+  { "name": "Lagunitas Brewing Co", "price": 250 },
+  { "name": "Sierra Nevada Brewing Co", "price": 220 },
+  { "name": "Stone Brewing", "price": 200 },
+  { "name": "Founders Brewing Co", "price": 230 },
+  { "name": "Bell's Brewery", "price": 210 }
+]
